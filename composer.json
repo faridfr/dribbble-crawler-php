@@ -1,0 +1,17 @@
+{
+    "name": "f.froozan/crawler",
+    "autoload": {
+        "psr-4": {
+            "FFroozan\\Crawler\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Farid Froozan",
+            "email": "froozan@yahoo.com"
+        }
+    ],
+    "require": {
+        "fabpot/goutte": "^4.0"
+    }
+}
