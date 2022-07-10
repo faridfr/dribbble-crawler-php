@@ -8,10 +8,12 @@ use Goutte\Client;
  */
 class DribbbleCrawler {
 
-    public $counter=1, $colors = [], $page_limit = 1000;
+    public $counter=1, $colors = [], $page_limit = 2000;
 
-    public function __construct(){
-        return $this->start_crawling();
+    public function __construct($page_limit = null){
+        if(!is_null($page_limit))
+            $this->page_limit = $page_limit;
+        return $this->start_crawling($page_limit);
     }
 
     public function create_unique_random_hex(){
@@ -41,19 +43,11 @@ class DribbbleCrawler {
                 $page->href = $node->attr('href');
                 $page->text = $node->text();
 
-                // check duplicate
-                $duplicate = 0;
-                foreach($data as $item){
-                    if($item->href == $page->href)
-                    {
-                        $duplicate = 1;
-                        break;
-                    }
-                }
-
-                if($duplicate){
+                if($this->is_duplicate($data,$page))
                     print "Page ".$this->counter." ignored because it's duplicate\n";
-                }
+                
+                elseif($this->counter > $this->page_limit)
+                    print "Page ".$this->counter." ignored because limitation\n";
 
                 else {
                     // crawl to user interface pages and get their data
@@ -76,6 +70,18 @@ class DribbbleCrawler {
         else 
             echo "Oops! Error creating json file...";
        
+    }
+
+    public function is_duplicate($data,$page){
+        $duplicate = 0;
+        foreach($data as $item){
+            if($item->href == $page->href)
+            {
+                $duplicate = 1;
+                break;
+            }
+        }
+        return $duplicate;
     }
 
     public function getUserInterfaceTitle($crawler,$page){
