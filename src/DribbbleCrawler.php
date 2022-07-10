@@ -8,12 +8,20 @@ use Goutte\Client;
  */
 class DribbbleCrawler {
 
-    public $counter=1;
-    public $colors = ['2516C7','eeeeee','aaaaaa'];
+    public $counter=1, $colors = [], $page_limit = 1000;
 
-    public function __construct()
-    {
+    public function __construct(){
         return $this->start_crawling();
+    }
+
+    public function create_unique_random_hex(){
+        while(1){
+            $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+            $color = $rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
+            if(!in_array($color, $this->colors))
+                break;
+        }
+        return $color;
     }
 
     public function start_crawling(){
@@ -21,8 +29,8 @@ class DribbbleCrawler {
         $client = new Client();
         $data = [];
 
-        foreach($this->colors as $color){
-            $crawler = $client->request('GET', 'https://dribbble.com/shots/popular/web-design?color='.$color);
+        while($this->counter <= $this->page_limit){
+            $crawler = $client->request('GET', 'https://dribbble.com/shots/popular/web-design?color='.$this->create_unique_random_hex());
             $crawler->filter('.shot-thumbnail-link')->each(function ($node) use(&$data,$client,$crawler) {
                 
                 // set page basic data
@@ -33,15 +41,32 @@ class DribbbleCrawler {
                 $page->href = $node->attr('href');
                 $page->text = $node->text();
 
-                // crawl to user interface pages and get their data
-                $crawler = $client->click($crawler->selectLink($node->text())->link());
-                $this->getUserInterfaceTitle($crawler,$page);
-                $this->getUserInterfaceColors($crawler,$page);
-                $this->getUserInterfaceInfo($crawler,$page);
+                // check duplicate
+                $duplicate = 0;
+                foreach($data as $item){
+                    if($item->href == $page->href)
+                    {
+                        $duplicate = 1;
+                        break;
+                    }
+                }
 
-                // add page data to array
-                array_push($data,$page);
-                print "Page ".$this->counter++." ( ".$page->title." ) added to array\n";
+                if($duplicate){
+                    print "Page ".$this->counter." ignored because it's duplicate\n";
+                }
+
+                else {
+                    // crawl to user interface pages and get their data
+                    $crawler = $client->click($crawler->selectLink($node->text())->link());
+                    $this->getUserInterfaceTitle($crawler,$page);
+                    $this->getUserInterfaceColors($crawler,$page);
+                    $this->getUserInterfaceInfo($crawler,$page);
+
+                    // add page data to array if not exists
+                    array_push($data,$page);
+                    print "Page ".$this->counter++." ( ".$page->title." ) added to array\n";
+                }
+               
             });
         }
 
@@ -67,7 +92,7 @@ class DribbbleCrawler {
 
     public function getUserInterfaceInfo($crawler,$page){
         preg_match('#shotData: (.*?),\s*$#m', $crawler->outerHtml(), $matches);
-        array_push($page->info,json_decode($matches[1]));
+        array_push($page->info,$matches[1] ? json_decode($matches[1]) : []);
     }
 
 }
