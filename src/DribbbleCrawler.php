@@ -16,16 +16,6 @@ class DribbbleCrawler {
         return $this->start_crawling($page_limit);
     }
 
-    public function create_unique_random_hex(){
-        while(1){
-            $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
-            $color = $rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
-            if(!in_array($color, $this->colors))
-                break;
-        }
-        return $color;
-    }
-
     public function start_crawling(){
 
         $client = new Client();
@@ -82,6 +72,16 @@ class DribbbleCrawler {
             }
         }
         return $duplicate;
+    }
+
+    public function create_unique_random_hex(){
+        while(1){
+            $rand = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+            $color = $rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)].$rand[rand(0,15)];
+            if(!in_array($color, $this->colors))
+                break;
+        }
+        return $color;
     }
 
     public function getUserInterfaceTitle($crawler,$page){
