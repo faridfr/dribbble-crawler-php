@@ -1,5 +1,4 @@
-# php-dribbble-crawler
+# Dribbble crawler with PHP
 
-
-## using : https://github.com/FriendsOfPHP/Goutte
-## https://symfony.com/doc/current/components/dom_crawler.html
+##### https://github.com/FriendsOfPHP/Goutte
+##### https://symfony.com/doc/current/components/dom_crawler.html
