@@ -29,7 +29,6 @@ class DribbbleCrawler {
                 $page = new StdClass();
                 $page->colors = [];
                 $page->info = [];
-                $page->tags = [];
                 $page->href = $node->attr('href');
                 $page->text = $node->text();
 
@@ -98,7 +97,18 @@ class DribbbleCrawler {
 
     public function getUserInterfaceInfo($crawler,$page){
         preg_match('#shotData: (.*?),\s*$#m', $crawler->outerHtml(), $matches);
-        array_push($page->info,$matches[1] ? json_decode($matches[1]) : []);
+        array_push($page->info,$matches[1] ? $this->filter(json_decode($matches[1])) : []);
+    }
+
+    public function filter($arr){
+        $key_filters = ['commentsCount','featureShotUrl','likesCount','postedOn','savesCount','shotId','tags','viewsCount'];
+        $filtered = [];
+        $arr = json_decode(json_encode($arr), true);
+        foreach($arr as $key => $value){
+            if(in_array($key,$key_filters))
+                $filtered[$key] = $arr[$key];
+        }
+        return $filtered;
     }
 
 }

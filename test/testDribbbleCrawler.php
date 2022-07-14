@@ -1,4 +1,4 @@
 <?php
 
 require __DIR__ . '\..\src\DribbbleCrawler.php';
-$dribbbleCrawler = new DribbbleCrawler(50);
+$dribbbleCrawler = new DribbbleCrawler(2);
